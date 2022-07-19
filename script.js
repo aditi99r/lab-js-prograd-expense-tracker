@@ -1,42 +1,48 @@
-function addTransaction()
-{
-    var costing = 
-    {
-        id: localStorage.length,
-        name: document.getElementById("text").value,
-        amount: document.getElementById("amount").value
-    };
-    if(costing.name && costing.amount)
-    {
-        localStorage.setItem(costing.id, JSON.stringify(costing));
+let addTransaction = document.querySelector(".btn");
+
+addTransaction.addEventListener("click", () => {
+  let text = _("text").value;
+  let amt = _("amount").value;
+  if (text == "" || amt == "") {
+    alert("The Text or Amt are empty");
+  } else {
+    localStorage.setItem(text, amt);
+  }
+});
+
+function history() {
+  let incomeCount = 0,
+    expenseCount = 0;
+  if (localStorage.length > 0) {
+    for (let i = 0; i < localStorage.length; i++) {
+      let text = localStorage.key(i);
+      let amt = localStorage.getItem(localStorage.key(i));
+      if (amt.includes("-")) {
+        expenseCount += Math.abs(parseFloat(amt));
+      } else {
+        incomeCount += parseFloat(amt);
+      }
+      let list = _("list");
+      let item = document.createElement("li");
+      item.classList.add(`${amt.includes("-") ? `minus` : `plus`}`);
+      let itext = document.createElement("p");
+      itext.textContent = text;
+      item.appendChild(itext);
+      let iamt = document.createElement("p");
+      iamt.textContent = `${amt.includes("-") ? `` : `+`}${amt}`;
+      item.appendChild(iamt);
+      list.appendChild(item);
     }
+  }
+  _("money-plus").textContent = `+$${incomeCount.toFixed(2)}`;
+  _("money-minus").textContent = `-$${expenseCount.toFixed(2)}`;
+  _("balance").textContent = `$${(incomeCount - expenseCount).toFixed(2)}`;
 }
 
-var positive = 0.00, negative = 0.00, balance = 0.00;
-
-for (let i = localStorage.length ; i>0; i--) 
-{
-    var item = JSON.parse(localStorage.getItem(i-1));
-    var li = document.createElement("li");
-    if(item.amount<0)
-    {
-        li.classList.add("minus");
-        negative = negative + parseFloat(item.amount);
-        negative.toFixed(2);
-    }
-    else 
-    {
-        li.classList.add("plus");
-        positive = positive + parseFloat(item.amount);
-    }
-    var ul = document.getElementById("list");
-    ul.appendChild(li);
-    li.innerHTML = "<div>"+item.name+"</div> <div>"+item.amount+"</div>" ;
+function _(id) {
+  return document.getElementById(id);
 }
-balance = negative + positive;
-negative = negative.toFixed(2);
-positive = positive.toFixed(2);
-balance = balance.toFixed(2);
-document.getElementById("balance").innerHTML = "$"+balance;
-document.getElementById("money-plus").innerHTML = "+$"+positive;
-document.getElementById("money-minus").innerHTML = "-$"+negative;
+
+window.onload = () => {
+  history();
+};
